@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Sentinel SOC Lab</title>
+    <style>
+        .screenshot {
+            width: 80%;
+            max-width: 800px;
+            height: auto;
+            padding: 20px;
+            margin: 20px auto;
+            display: block;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        @media (max-width: 768px) {
+            .screenshot {
+                width: 100%;
+                padding: 10px;
+            }
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header p, header span {
+            margin: 0; 
+            padding: 0;
+        } 
+    </style>
+</head>
+<header>
+    <p>Connor Panso</p> 
+    <span><p>Questions or suggestions, note to <strong>cpanso at outlook dot com</strong></p></span>
+</header>
+<body>
+
+    <h1>Setting Up a Security Information and Event Management (SIEM) System Using Microsoft Sentinel</h1>
+
+    <p>In this project, I’ll be setting up a Security Information and Event Management (SIEM) system that can monitor and generate alerts for endpoints, simulating a real-world environment. The best part is that I’ll be doing this for free using Azure trial credits.</p>
+
+    <h2>Why I’m Building This Project</h2>
+    
+    <p>With over 95% of Fortune 500 companies utilizing Microsoft Azure, gaining a solid understanding of Azure services, specifically Microsoft Sentinel, is crucial for anyone looking to enhance their cybersecurity skills. This lab provides me with real-time security insights and the ability to detect security events, making it a valuable learning tool. As someone who is relatively new to Azure, I'm eager to explore what Sentinel has to offer. This aligns with my focus on strengthening my Blue Team skills, particularly in protecting endpoints and networks.</p>
+
+
+    <h2>Getting Started: Setting Up Azure and Creating a Virtual Machine</h2>
+    
+    <p>As a first-time user of Azure, I signed up and received $200 in free credits. This amount is sufficient to set up and experiment within this lab environment.</p>
+
+    <ul>
+        <li><strong>Create a Resource Group:</strong> A resource group in Azure acts as a container that holds related resources for a specific Azure solution. I started by creating a new resource group to organize the resources for this project.</li>
+        <li><strong>Set Up a Virtual Machine (VM):</strong> Using the Azure portal, I created a new VM. I opted for a Windows Server VM with the default configuration.</li>
+        <li><strong>Enable Remote Desktop Protocol (RDP):</strong> I allowed RDP access to the VM. Since RDP is a common target for attackers, it’s an excellent way to generate security events for monitoring.</li>
+    </ul>
+
+
+    <p><img src="VMss.png" alt="Virtual Machine Setup Screenshot" class="screenshot"></p>
+    <p><img src="RDPss.png" alt="Virtual Machine Setup Screenshot" class="screenshot"></p>
+
+    <h2>Deploying Microsoft Sentinel</h2>
+
+    <ul>
+        <li><strong>Create a Sentinel Instance:</strong> I searched for “Sentinel” in the Azure portal and set up a new instance. Sentinel is a cloud-native SIEM solution that offers comprehensive security analytics and threat intelligence.</li>
+        <li><strong>Create and Link a Log Analytics Workspace:</strong> I created a Log Analytics workspace and linked it with the VM. This workspace will collect and store logs from the VM, which will then be analyzed by Sentinel.</li>
+    </ul>
+
+
+    <h2>Configuring Data Collection and Monitoring</h2>
+
+    <ul>
+        <li><strong>Install Data Connectors:</strong> Data connectors are essential for Sentinel to gather information from various sources. I installed the Azure Monitor Agent (AMA), which acts as a bridge to collect logs from the VM.</li>
+        <li><strong>Set Up Data Collection Rules:</strong> I defined specific rules for collecting security-related data from the VM. For this lab, I focused on collecting all security events, such as successful and failed logins and changes to security policies.</li>
+        <li><strong>Create Alert Rules:</strong> Using Sentinel's built-in capabilities, I created alert rules that trigger based on specific events. For example, I set up a rule that generates an alert whenever a successful RDP login occurs from a non-system account. This rule is configured to run every five minutes to ensure timely detection of any suspicious activities.</li>
+    </ul>
+
+
+    <h2>Monitoring and Analyzing Incidents</h2>
+
+    <ul>
+        <li><strong>Incident Management:</strong> Once the alert rules were active, Sentinel automatically generated incidents based on the criteria I set. These incidents can be investigated to assess the nature and severity of the potential threats.</li>
+        <li><strong>Customize the Sentinel Dashboard:</strong> The Sentinel dashboard provides a centralized view of incidents, data, and analytics. I customized it by adding widgets and tiles, giving me quick access to crucial information such as the number of incidents, types of alerts, and data flow.</li>
+    </ul>
+
+
+    <p><img src="dbss.png" alt="Incident Management Screenshot" class="screenshot"></p>
+
+    <h2>Conclusion</h2>
+
+    <p>Setting up this lab with Microsoft Sentinel in Azure has given me practical experience with cloud-based SIEM systems. This project not only helps me better understand Azure’s capabilities but also enhances my ability to detect and respond to security incidents effectively. The skills gained from this lab are directly applicable to real-world cybersecurity roles, making it a valuable addition to my professional toolkit.</p>
+
+    <p>With this foundational setup complete, I look forward to exploring more advanced features in Azure Sentinel, such as automating threat responses and integrating custom threat intelligence feeds.</p>
+
+    <hr>
+    <a href="../../index.html">Connor Panso</a>
+</body>
+</html>

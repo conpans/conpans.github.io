@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BroadcastOps Interface</title>
+    <style>
+        .screenshot {
+            width: 80%;
+            max-width: 800px;
+            height: auto;
+            padding: 20px;
+            margin: 20px auto;
+            display: block;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        @media (max-width: 768px) {
+            .screenshot {
+                width: 100%;
+                padding: 10px;
+            }
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header p, header span {
+            margin: 0; 
+            padding: 0;
+        } 
+    </style>
+</head>
+<body>
+    <header>
+        <p>Connor Panso</p> 
+        <span><p>Questions or suggestions, note to <strong>cpanso at outlook dot com</strong></p></span>
+    </header>
+    <h1>BroadcastOps Interface</h1>
+    <h2>Introduction</h2>
+    <p>BOI (BroadcastOps Interface) is all in one web interface to monitor live camera feeds in real time and also preview the channels in which your station is broadcasting. The system is also a web-based interface for monitoring the connectivity status of various devices. It provides a visual representation of the network status of the cameras, with the ability to directly manage these devices through the interface. The system updates in real time, ensuring that the information is current. This setup could be used for network administration in eviroments where real-time monitoring of devices statuses is critical.</p>
+    <p>Depending where your station collects their live feed, you would want to switch that into the url for the specified iframes. The color of the status blocks change to red if the ip doesnt ping back. I utilized Asynchronous JavaScript and XML (AJAX) inorder to recieve constant pings without the need to refresh the page.</p>
+    <p>You can costumize the source code the way's you see best fit your needs.</p>
+    <h2>What do you need?</h2>
+    <ul>
+        <li>When running the interface, you will need to have downloaded the latest version of XAMPP and run the Apache and MySQL modules.</li>
+    </ul>
+    <h2>Screenshots</h2>
+    <p>Here is a screenshot showcasing what you could have your version of BOI do for you.</p>
+    <img style="width:940px;height:540px;" src="pic1nw.png" class="screenshot">
+    <p>Unedited version</p>
+    <img style="width:940px;height:540px;" src="pic2.png" class="screenshot">
+    <h2>How does it work?</h2>
+    <p>There are 2 part's, a PHP frontend ('index.php') and a server side script ('ajax.php').</p>
+    <p><strong>index.php</strong></p>
+    <p>The data initialization works in a way that with the set of cameras and the power distribution units are defined as a array of objects, each contains properties as in 'ip', 'user', 'pass', 'apIp', etc. The objects hold all ncessary information to interact with each device. </p>
+    <p>The way the status checking works is that it utilizes AJAX request to periodically (every 5 seconds) ping the devices IP's to check the connectivity status. This is done by calling the 'pingIPs' function, which then uses 'updateText' to handle the AJAX logic.</p>
+    <p>On page load ('window.onload'), the script populates the table with data from the devices. Every 5 seconds, the 'pingIPs' function sends out AJAX requests to check the status of each device and updates the UI accordinly.</p>
+    <p><strong>ajax.php</strong></p>
+    <p>Recieves a device IP ('domain') as a GET parameter. Pings the provided IP. Returns a "1" for online or "0" for offline, whcih the JavaScript logic then uses to update the UI.</p>
+    <h2>Source code</h2>
+    <p>The code can be found on my <a href="https://github.com/conpans/BroadcastOpsInterface"> Github</a></p> 
+    <hr>
+    <a href="../../index.html">Connor Panso</a>
+</body>
+</html>
